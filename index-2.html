@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f4f6f8" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0e151b" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-title" content="Mountain Weather">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="apple-touch-icon.png">
+<title>Mountain Weather</title>
+<style>
+:root{
+  --bg:#f4f6f8;--card:#ffffff;--text:#16212b;--muted:#5b6b78;--accent:#1d6fb8;--border:#dde3e8;--warn-bg:#fff4e0;--warn-text:#6b4300;
+  color-scheme:light;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0e151b;--card:#18222b;--text:#e8eef3;--muted:#9aabb8;--accent:#6bb3ee;--border:#2a3743;--warn-bg:#3a2d12;--warn-text:#f2d9a0;color-scheme:dark;}
+}
+:root[data-theme="dark"]{--bg:#0e151b;--card:#18222b;--text:#e8eef3;--muted:#9aabb8;--accent:#6bb3ee;--border:#2a3743;--warn-bg:#3a2d12;--warn-text:#f2d9a0;color-scheme:dark;}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent;background:var(--bg);color:var(--text);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+main{max-width:720px;margin:0 auto;padding:20px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px))}
+h1{font-size:1.6rem;margin:0 0 4px}
+.sub{color:var(--muted);margin:0 0 16px;font-size:.9rem}
+h3{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:12px 0 6px;padding-left:2px;opacity:.85}
+h2{font-size:1.3rem;font-weight:700;letter-spacing:.01em;color:var(--text);margin:28px 0 10px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+a.tile{display:flex;flex-direction:column;gap:4px;min-height:84px;padding:14px;background:var(--card);border:1px solid var(--border);border-radius:14px;color:var(--text);text-decoration:none}
+a.tile:active{transform:scale(.98)}
+.icon{font-size:1.5rem}
+.name{font-weight:600;font-size:.95rem}
+.go{color:var(--accent);font-size:.8rem}
+.note{background:var(--warn-bg);color:var(--warn-text);border-radius:12px;padding:12px 14px;font-size:.88rem;margin-top:24px}
+details.more{margin-top:18px}
+summary{cursor:pointer;font-weight:600;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:14px;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:" \203a";color:var(--accent)}
+details[open] summary::after{content:" \2304"}
+details .grid{margin-top:10px}
+footer{color:var(--muted);font-size:.8rem;margin-top:20px}
+a.tile{position:relative;touch-action:manipulation}
+.bar{display:flex;gap:8px;margin:0 0 12px}
+.bar button{font:inherit;font-size:.9rem;min-height:44px;padding:10px 16px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--accent)}
+#resetBtn,#copyBtn{display:none}
+.editing #resetBtn,.editing #copyBtn{display:inline-block}
+.handle{display:none;position:absolute;top:6px;right:6px;width:36px;height:36px;align-items:center;justify-content:center;border-radius:8px;background:var(--bg);color:var(--muted);touch-action:none;font-size:1.1rem}
+.editing .handle{display:flex}
+.editing a.tile{outline:2px dashed var(--border)}
+a.tile.drag{opacity:.55;outline-color:var(--accent)}
+.grid.sm{grid-template-columns:repeat(3,1fr);gap:8px}
+.grid.sm a.tile{min-height:46px;padding:8px;gap:2px;border-radius:10px}
+.grid.sm .icon{font-size:.9rem;line-height:1}
+.grid.sm .name{font-size:.75rem;line-height:1.2}
+.grid.sm .go{display:none}
+.grid.sm .handle{width:26px;height:26px;top:3px;right:3px;font-size:.8rem}
+@media (min-width:560px){.grid.sm{grid-template-columns:repeat(4,1fr)}}
+.grid:empty::before{content:"Empty. Tap Edit layout, then drag tiles here.";grid-column:1/-1;color:var(--muted);font-size:.85rem;padding:10px 0}
+@media (min-width:560px){.grid{grid-template-columns:repeat(3,1fr)}}
+/* keep the page from drifting sideways on iPhone */
+html,body{max-width:100%;overflow-x:clip;overscroll-behavior-x:none;touch-action:pan-y pinch-zoom}
+.grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.sm{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (min-width:560px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}.grid.sm{grid-template-columns:repeat(4,minmax(0,1fr))}}
+a.tile,.name{min-width:0;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<main>
+  <h1>Mountain Weather</h1>
+  <p class="sub">Source: Avalanche Canada. Dashboard built Oct 19, 2026.</p>
+
+  <h2>Global</h2>
+  <div class="grid">
+    <a class="tile" href="https://weather.gc.ca/data/analysis/sai_100.gif" target="_blank" rel="noopener"><span class="icon">🗺️</span><span class="name">Analysis map (sai_100)</span><span class="go">Open live image ›</span></a>
+    <a class="tile" href="https://avalanche.ca/weather/forecast" target="_blank" rel="noopener"><span class="icon">🏔️</span><span class="name">Mountain Weather Forecast</span><span class="go">Open live ›</span></a>
+  </div>
+  <h3>Satellite</h3>
+  <div class="grid sm">
+    <a class="tile" href="https://weather.cod.edu/satrad/?parms=global-northamerica-07-24-1-100-1&amp;checked=map&amp;colorbar=undefined" target="_blank" rel="noopener"><span class="icon">🛰️</span><span class="name">Shortwave IR</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://weather.cod.edu/satrad/?parms=global-northamerica-09-24-1-100-1&amp;checked=map&amp;colorbar=undefined" target="_blank" rel="noopener"><span class="icon">🛰️</span><span class="name">Mid-level WV</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://weather.cod.edu/satrad/?parms=global-northamerica-01-24-1-100-1&amp;checked=map&amp;colorbar=undefined" target="_blank" rel="noopener"><span class="icon">🛰️</span><span class="name">Visible (blue)</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://www.star.nesdis.noaa.gov/goes/sector_band.php?sat=G19&amp;sector=can&amp;band=01&amp;length=24" target="_blank" rel="noopener"><span class="icon">🛰️</span><span class="name">GOES-19 Canada Visible</span><span class="go">Open live ›</span></a>
+  </div>
+
+  <h2>Meso</h2>
+  <div class="grid">
+    <a class="tile" href="https://earth.nullschool.net/#current/wind/isobaric/500hPa/overlay=temp/orthographic=-118.86,50.54,1004/loc=-122.767,53.193" target="_blank" rel="noopener"><span class="icon">🌬️</span><span class="name">500 hPa Wind &amp; Temp</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://plan.navcanada.ca/gfa/" target="_blank" rel="noopener"><span class="icon">✈️</span><span class="name">NAV CANADA GFA</span><span class="go">Open live ›</span></a>
+  </div>
+
+  <h3>BC Satellite</h3>
+  <div class="grid sm">
+    <a class="tile" href="https://weather.cod.edu/satrad/?parms=regional-w_southwest-01-24-1-100-1&amp;checked=map&amp;colorbar=undefined" target="_blank" rel="noopener"><span class="icon">🛰️</span><span class="name">Visible (blue)</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://weather.cod.edu/satrad/?parms=regional-w_southwest-09-24-1-100-1&amp;checked=map&amp;colorbar=undefined" target="_blank" rel="noopener"><span class="icon">🛰️</span><span class="name">Mid-level WV</span><span class="go">Open live ›</span></a>
+  </div>
+
+  <h2>Local</h2>
+  <div class="grid sm">
+    <a class="tile" href="https://meteograms.avalanche.ca/ac/ac_meteogram.html" target="_blank" rel="noopener"><span class="icon">📈</span><span class="name">Meteograms</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://meteograms.avalanche.ca/ac/data/meteograms/HRDPS_mp/LAMc.12Z_South.Columbias_MacKenzie.png?1792432714815" target="_blank" rel="noopener"><span class="icon">📊</span><span class="name">RMR Meteogram</span><span class="go">Open image ›</span></a>
+    <a class="tile" href="https://windy.app/forecast2/spot/4790911/Revelstoke+BC" target="_blank" rel="noopener"><span class="icon">🌬️</span><span class="name">Revelstoke Forecast</span><span class="go">Open live ›</span></a>
+  </div>
+
+  <h3>SpotWx</h3>
+  <div class="grid sm">
+    <a class="tile" href="https://spotwx.com/products/grib_index.php?model=ecmwf_ifs&amp;lat=50.96189&amp;lon=-118.15796&amp;tz=America/Vancouver&amp;label=" target="_blank" rel="noopener"><span class="icon">📍</span><span class="name">ECMWF Forecast</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://spotwx.com/products/grib_index.php?model=hrdps_1km_west&amp;lat=50.96189&amp;lon=-118.15796&amp;tz=America/Vancouver&amp;label=" target="_blank" rel="noopener"><span class="icon">📍</span><span class="name">HRDPS 1km West</span><span class="go">Open live ›</span></a>
+  </div>
+
+  <h2>Conditions</h2>
+  <div class="grid sm">
+    <a class="tile" href="https://avalanche.ca/map?panel=mountain-information-network-submissions%2F7b557b9e-cbbb-11f1-98b2-0a58a9feac02" target="_blank" rel="noopener"><span class="icon">👥</span><span class="name">Mountain Information Network</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://www.revelstokemountainresort.com/mountain/conditions/webcams/" target="_blank" rel="noopener"><span class="icon">📷</span><span class="name">RMR Webcams</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://www.revelstokemountainresort.com/conditions/snow-report" target="_blank" rel="noopener"><span class="icon">❄️</span><span class="name">RMR Snow Report</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://www.pc.gc.ca/apps/Rogers-Pass" target="_blank" rel="noopener"><span class="icon">⚠️</span><span class="name">Glacier Avalanche Bulletin</span><span class="go">Open live ›</span></a>
+  </div>
+
+    <details class="more">
+    <summary>More</summary>
+    <div class="grid">
+    <a class="tile" href="https://avalanche.ca/weather/forecast/hourly-precipitation" target="_blank" rel="noopener"><span class="icon">🌧️</span><span class="name">Hourly Precipitation</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://avalanche.ca/weather/forecast/12h-precipitation" target="_blank" rel="noopener"><span class="icon">☔</span><span class="name">12hr Total Precipitation</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://avalanche.ca/weather/forecast/temperatures" target="_blank" rel="noopener"><span class="icon">🌡️</span><span class="name">Temperatures</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://avalanche.ca/weather/forecast/winds" target="_blank" rel="noopener"><span class="icon">💨</span><span class="name">Winds</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://avalanche.ca/weather/forecast/surface-maps" target="_blank" rel="noopener"><span class="icon">🗺️</span><span class="name">Surface Maps</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://avalanche.ca/weather/forecast/other-maps" target="_blank" rel="noopener"><span class="icon">🌀</span><span class="name">500 mbar &amp; Precipitable Water</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://avalanche.ca/weather/forecast/radar" target="_blank" rel="noopener"><span class="icon">📡</span><span class="name">Radar</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://avalanche.ca/weather/forecast/satellite" target="_blank" rel="noopener"><span class="icon">🛰️</span><span class="name">Satellite</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://avalanche.ca/weather/forecast/actual-temperatures" target="_blank" rel="noopener"><span class="icon">🔥</span><span class="name">Current Temperatures</span><span class="go">Open live ›</span></a>
+    <a class="tile" href="https://avalanche.ca/weather/forecast/warnings" target="_blank" rel="noopener"><span class="icon">⚠️</span><span class="name">Warnings</span><span class="go">Open live ›</span></a>
+    </div>
+  </details>
+
+  <footer>Forecasts prepared by Avalanche Canada; graphics by the Meteorological Service of Canada.</footer>
+</main>
+</body>
+</html>
